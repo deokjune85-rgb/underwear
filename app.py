@@ -69,26 +69,42 @@ st.markdown("""
         margin: 0 auto;
         display: flex;
         flex-direction: column;
-        gap: 15px; /* 간격 조절 */
-        padding-bottom: 50px;
+        gap: 10px; /* 균일한 간격 */
+        padding-bottom: 30px;
+    }
+    
+    /* 입력창 스타일 개선 */
+    .stTextInput > div > div > input {
+        background-color: #ffffff !important;
+        border: 2px solid #ffeb3b !important;
+        border-radius: 25px !important;
+        padding: 12px 20px !important;
+        font-size: 1rem !important;
+        color: #191919 !important;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #f9a825 !important;
+        box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.3) !important;
     }
     
     .bot-message {
         background-color: #ffffff; /* 흰색 말풍선 */
         border: 1px solid #e0e0e0;
         border-radius: 15px 15px 15px 0; /* 카톡 좌측 말풍선 */
-        color: #333333;
+        color: #191919; /* 진한 검정 */
         padding: 15px;
         font-size: 1rem;
-        line-height: 1.6;
+        line-height: 1.5;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         animation: fadeIn 0.5s ease-out;
         max-width: 85%;
+        margin-bottom: 10px;
     }
     
     .user-message {
         background: #ffeb3b; /* 카톡 사용자 말풍선 */
-        color: #3c4043;
+        color: #191919; /* 진한 검정 */
         padding: 15px 20px;
         border-radius: 15px 15px 0 15px; /* 카톡 우측 말풍선 */
         align-self: flex-end;
@@ -98,6 +114,7 @@ st.markdown("""
         animation: fadeIn 0.5s ease-out;
         max-width: 80%;
         text-align: right;
+        margin-bottom: 10px;
     }
 
     .phase-tag {
@@ -173,6 +190,30 @@ st.markdown("""
         background: linear-gradient(90deg, #4285f4, #1a73e8);
         transform: translateY(-2px);
     }
+    
+    /* 자동 포커스를 위한 스타일 */
+    .auto-focus {
+        animation: focusAnimation 0.3s ease-out;
+    }
+    
+    @keyframes focusAnimation {
+        0% { background-color: rgba(255, 235, 59, 0.2); }
+        100% { background-color: transparent; }
+    }
+</style>
+
+<script>
+function autoFocus() {
+    setTimeout(function() {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+        if (inputs.length > 0) {
+            const lastInput = inputs[inputs.length - 1];
+            lastInput.focus();
+            lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 500);
+}
+</script>
 </style>
 """, unsafe_allow_html=True)
 
@@ -363,8 +404,24 @@ if st.session_state.step < len(questions):
         
         if q['type'] in ['text', 'number']:
             with st.form(key=f"form_{st.session_state.step}"):
-                user_val = st.text_input("답변을 입력해주세요.", key=f"input_{st.session_state.step}")
+                # 자동 포커스를 위한 고유 키 생성
+                input_key = f"input_{st.session_state.step}_{int(time.time())}"
+                user_val = st.text_input("답변을 입력해주세요.", key=input_key, placeholder="여기에 입력하세요...")
                 submit = st.form_submit_button("입력하기 ➔")
+                
+                # 페이지 로드시 자동 포커스
+                st.markdown(f"""
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {{
+                    setTimeout(function() {{
+                        const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+                        if (inputs.length > 0) {{
+                            inputs[inputs.length - 1].focus();
+                        }}
+                    }}, 300);
+                }});
+                </script>
+                """, unsafe_allow_html=True)
                 
             if submit and user_val:
                 st.session_state.history.append({"role": "user", "text": user_val})
@@ -376,6 +433,21 @@ if st.session_state.step < len(questions):
                 st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                 
                 st.session_state.step += 1
+                
+                # 자동 포커스를 위한 JavaScript 실행
+                st.markdown("""
+                <script>
+                setTimeout(function() {
+                    const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+                    if (inputs.length > 0) {
+                        const lastInput = inputs[inputs.length - 1];
+                        lastInput.focus();
+                        lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+                </script>
+                """, unsafe_allow_html=True)
+                
                 st.rerun()
                 
         elif q['type'] == 'select':
@@ -392,6 +464,21 @@ if st.session_state.step < len(questions):
                         st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                         
                         st.session_state.step += 1
+                        
+                        # 자동 포커스를 위한 JavaScript 실행
+                        st.markdown("""
+                        <script>
+                        setTimeout(function() {
+                            const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+                            if (inputs.length > 0) {
+                                const lastInput = inputs[inputs.length - 1];
+                                lastInput.focus();
+                                lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                        }, 100);
+                        </script>
+                        """, unsafe_allow_html=True)
+                        
                         st.rerun()
         
         elif q['type'] == 'multiselect': # 다중 선택 처리
@@ -413,6 +500,21 @@ if st.session_state.step < len(questions):
                 st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                 
                 st.session_state.step += 1
+                
+                # 자동 포커스를 위한 JavaScript 실행
+                st.markdown("""
+                <script>
+                setTimeout(function() {
+                    const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+                    if (inputs.length > 0) {
+                        const lastInput = inputs[inputs.length - 1];
+                        lastInput.focus();
+                        lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+                </script>
+                """, unsafe_allow_html=True)
+                
                 st.rerun()
 
 
