@@ -467,18 +467,6 @@ with chat_placeholder:
             </div>
             """, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
-    
-    # 자동 스크롤 실행
-    st.markdown("""
-    <script>
-    setTimeout(function() {
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: 'smooth'
-        });
-    }, 100);
-    </script>
-    """, unsafe_allow_html=True)
 
 # 3. 입력 처리 및 로직
 if st.session_state.step < len(questions):
@@ -496,9 +484,12 @@ if st.session_state.step < len(questions):
         st.session_state.history.append({"role": "bot", "text": q['question'], "phase": q['phase']})
         st.rerun()
 
-    # 입력 위젯 영역
-    with st.container():
-        st.write("") # 빈 공간 확보
+    # 입력 위젯 영역 - 고정 위치
+    st.markdown("---")
+    input_container = st.container()
+    
+    with input_container:
+        st.markdown("### 📝 답변 입력")
         
         if q['type'] in ['text', 'number']:
             with st.form(key=f"form_{st.session_state.step}"):
@@ -515,42 +506,10 @@ if st.session_state.step < len(questions):
                 st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                 
                 st.session_state.step += 1
-                
-                # 입력창이 보이도록 스크롤
-                st.markdown("""
-                <script>
-                function scrollToInputArea() {
-                    setTimeout(function() {
-                        // 입력 영역을 찾아서 스크롤
-                        const inputElements = document.querySelectorAll('input[type="text"], input[type="number"]');
-                        const formElements = document.querySelectorAll('[data-testid="stForm"]');
-                        const buttonElements = document.querySelectorAll('.stButton');
-                        
-                        // 가장 아래쪽 입력 요소 찾기
-                        let targetElement = null;
-                        if (formElements.length > 0) {
-                            targetElement = formElements[formElements.length - 1];
-                        } else if (inputElements.length > 0) {
-                            targetElement = inputElements[inputElements.length - 1];
-                        } else if (buttonElements.length > 0) {
-                            targetElement = buttonElements[buttonElements.length - 1];
-                        }
-                        
-                        if (targetElement) {
-                            targetElement.scrollIntoView({ 
-                                behavior: 'smooth', 
-                                block: 'center' 
-                            });
-                        }
-                    }, 500);
-                }
-                scrollToInputArea();
-                </script>
-                """, unsafe_allow_html=True)
-                
                 st.rerun()
                 
         elif q['type'] == 'select':
+            st.markdown("**선택해주세요:**")
             cols = st.columns(2) # 2열로 고정
             for idx, opt in enumerate(q['options']):
                 with cols[idx % 2]: # 0, 1, 0, 1...
@@ -564,34 +523,6 @@ if st.session_state.step < len(questions):
                         st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                         
                         st.session_state.step += 1
-                        
-                        # 입력창이 보이도록 스크롤
-                        st.markdown("""
-                        <script>
-                        setTimeout(function() {
-                            const inputElements = document.querySelectorAll('input[type="text"], input[type="number"]');
-                            const formElements = document.querySelectorAll('[data-testid="stForm"]');
-                            const buttonElements = document.querySelectorAll('.stButton');
-                            
-                            let targetElement = null;
-                            if (formElements.length > 0) {
-                                targetElement = formElements[formElements.length - 1];
-                            } else if (inputElements.length > 0) {
-                                targetElement = inputElements[inputElements.length - 1];
-                            } else if (buttonElements.length > 0) {
-                                targetElement = buttonElements[buttonElements.length - 1];
-                            }
-                            
-                            if (targetElement) {
-                                targetElement.scrollIntoView({ 
-                                    behavior: 'smooth', 
-                                    block: 'center' 
-                                });
-                            }
-                        }, 500);
-                        </script>
-                        """, unsafe_allow_html=True)
-                        
                         st.rerun()
         
         elif q['type'] == 'multiselect': # 다중 선택 처리
@@ -614,6 +545,9 @@ if st.session_state.step < len(questions):
                 
                 st.session_state.step += 1
                 st.rerun()
+
+# 스크롤을 위한 빈 공간 추가 (입력창이 화면에 보이도록)
+st.markdown("<br>" * 10, unsafe_allow_html=True)
 
 
 # 4. 최종 결과 대시보드 (모든 질문 완료 시)
