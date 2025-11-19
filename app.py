@@ -404,24 +404,8 @@ if st.session_state.step < len(questions):
         
         if q['type'] in ['text', 'number']:
             with st.form(key=f"form_{st.session_state.step}"):
-                # 자동 포커스를 위한 고유 키 생성
-                input_key = f"input_{st.session_state.step}_{int(time.time())}"
-                user_val = st.text_input("답변을 입력해주세요.", key=input_key, placeholder="여기에 입력하세요...")
+                user_val = st.text_input("답변을 입력해주세요.", key=f"input_{st.session_state.step}")
                 submit = st.form_submit_button("입력하기 ➔")
-                
-                # 페이지 로드시 자동 포커스
-                st.markdown(f"""
-                <script>
-                document.addEventListener('DOMContentLoaded', function() {{
-                    setTimeout(function() {{
-                        const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-                        if (inputs.length > 0) {{
-                            inputs[inputs.length - 1].focus();
-                        }}
-                    }}, 300);
-                }});
-                </script>
-                """, unsafe_allow_html=True)
                 
             if submit and user_val:
                 st.session_state.history.append({"role": "user", "text": user_val})
@@ -433,21 +417,6 @@ if st.session_state.step < len(questions):
                 st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                 
                 st.session_state.step += 1
-                
-                # 자동 포커스를 위한 JavaScript 실행
-                st.markdown("""
-                <script>
-                setTimeout(function() {
-                    const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-                    if (inputs.length > 0) {
-                        const lastInput = inputs[inputs.length - 1];
-                        lastInput.focus();
-                        lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }, 100);
-                </script>
-                """, unsafe_allow_html=True)
-                
                 st.rerun()
                 
         elif q['type'] == 'select':
@@ -464,21 +433,6 @@ if st.session_state.step < len(questions):
                         st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                         
                         st.session_state.step += 1
-                        
-                        # 자동 포커스를 위한 JavaScript 실행
-                        st.markdown("""
-                        <script>
-                        setTimeout(function() {
-                            const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-                            if (inputs.length > 0) {
-                                const lastInput = inputs[inputs.length - 1];
-                                lastInput.focus();
-                                lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                        }, 100);
-                        </script>
-                        """, unsafe_allow_html=True)
-                        
                         st.rerun()
         
         elif q['type'] == 'multiselect': # 다중 선택 처리
@@ -500,21 +454,6 @@ if st.session_state.step < len(questions):
                 st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                 
                 st.session_state.step += 1
-                
-                # 자동 포커스를 위한 JavaScript 실행
-                st.markdown("""
-                <script>
-                setTimeout(function() {
-                    const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-                    if (inputs.length > 0) {
-                        const lastInput = inputs[inputs.length - 1];
-                        lastInput.focus();
-                        lastInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }, 100);
-                </script>
-                """, unsafe_allow_html=True)
-                
                 st.rerun()
 
 
