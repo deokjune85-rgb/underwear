@@ -368,6 +368,7 @@ def process_data_with_trace(param1: str, param2: str, param3: str, param4: str, 
 # 세션 상태 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "show_welcome" not in st.session_state:
     st.session_state.show_welcome = True
 
 # 헤더
@@ -400,7 +401,7 @@ with st.container():
     st.markdown('<div class="chat-container">', unsafe_allow_html=True)
     
     # 초기 환영 메시지 (항상 맨 위에 표시)
-    if st.session_state.show_welcome:
+    if st.session_state.get("show_welcome", True):
         st.markdown("""
         <div class="master-message fade-in">
             <strong>🔍 피터핏 스마트 피팅 엔진</strong>
