@@ -316,7 +316,7 @@ def create_analysis_chart(user_data):
         theta=categories,
         fill='toself',
         fillcolor='rgba(255, 235, 59, 0.4)', # 카톡 노랑 투명
-        line=dict(color='#ffeb3b', width=2), # 카톡 노랑
+        line=dict(color='#f7e600', width=2), # 카톡 노랑
         marker=dict(color='#3c4043', size=4), # 진한 회색
     ))
     
@@ -546,8 +546,8 @@ if st.session_state.step < len(questions):
                 st.session_state.step += 1
                 st.rerun()
 
-# 스크롤을 위한 빈 공간 추가 (입력창이 화면에 보이도록)
-st.markdown("<br>" * 10, unsafe_allow_html=True)
+    # 스크롤을 위한 빈 공간 추가 (입력창이 보이도록) -> INDENT FIX
+    st.markdown("<br>" * 10, unsafe_allow_html=True)
 
 
 # 4. 최종 결과 대시보드 (모든 질문 완료 시)
