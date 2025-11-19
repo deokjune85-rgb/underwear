@@ -243,31 +243,33 @@ function autoFocus() {
     }, 500);
 }
 
-// 자동 스크롤 함수
-function scrollToBottom() {
+// 자동 스크롤 함수 - 입력창이 보이도록 스크롤
+function scrollToInputArea() {
     setTimeout(function() {
-        // 여러 방법으로 스크롤 시도
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: 'smooth'
-        });
+        // 입력 영역을 찾아서 스크롤
+        const inputElements = document.querySelectorAll('input[type="text"], input[type="number"], .stButton');
+        const formElements = document.querySelectorAll('[data-testid="stForm"]');
         
-        // Streamlit 컨테이너도 스크롤
-        const containers = document.querySelectorAll('.main, .stApp');
-        containers.forEach(container => {
-            container.scrollTop = container.scrollHeight;
-        });
-        
-        // 페이지 전체 스크롤
-        document.documentElement.scrollTop = document.documentElement.scrollHeight;
-        
-    }, 100);
+        if (inputElements.length > 0 || formElements.length > 0) {
+            const targetElement = formElements.length > 0 ? formElements[formElements.length - 1] : inputElements[inputElements.length - 1];
+            targetElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+        } else {
+            // 페이지 끝으로 스크롤
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    }, 300);
 }
 
 // 페이지 로드시 스크롤
-document.addEventListener('DOMContentLoaded', scrollToBottom);
+document.addEventListener('DOMContentLoaded', scrollToInputArea);
 
-// MutationObserver로 DOM 변화 감지하여 자동 스크롤
+// MutationObserver로 DOM 변화 감지하여 입력창으로 스크롤
 const observer = new MutationObserver(function(mutations) {
     let shouldScroll = false;
     mutations.forEach(function(mutation) {
@@ -276,19 +278,17 @@ const observer = new MutationObserver(function(mutations) {
         }
     });
     if (shouldScroll) {
-        setTimeout(scrollToBottom, 200);
+        setTimeout(scrollToInputArea, 500);
     }
 });
 
-// 채팅 컨테이너 감시 시작
+// 전체 페이지 감시 시작
 setTimeout(function() {
-    const chatContainer = document.querySelector('.chat-container');
-    if (chatContainer) {
-        observer.observe(chatContainer, {
-            childList: true,
-            subtree: true
-        });
-    }
+    const mainContainer = document.querySelector('.main') || document.body;
+    observer.observe(mainContainer, {
+        childList: true,
+        subtree: true
+    });
 }, 1000);
 </script>
 </style>
@@ -516,28 +516,35 @@ if st.session_state.step < len(questions):
                 
                 st.session_state.step += 1
                 
-                # 강화된 자동 스크롤 실행
+                # 입력창이 보이도록 스크롤
                 st.markdown("""
                 <script>
-                function forceScrollToBottom() {
-                    // 즉시 스크롤
-                    window.scrollTo(0, document.body.scrollHeight);
-                    document.documentElement.scrollTop = document.documentElement.scrollHeight;
-                    
-                    // 부드러운 스크롤로 재시도
+                function scrollToInputArea() {
                     setTimeout(function() {
-                        window.scrollTo({
-                            top: document.body.scrollHeight,
-                            behavior: 'smooth'
-                        });
-                    }, 100);
-                    
-                    // 한번 더 강제 스크롤
-                    setTimeout(function() {
-                        window.scrollTo(0, document.body.scrollHeight);
+                        // 입력 영역을 찾아서 스크롤
+                        const inputElements = document.querySelectorAll('input[type="text"], input[type="number"]');
+                        const formElements = document.querySelectorAll('[data-testid="stForm"]');
+                        const buttonElements = document.querySelectorAll('.stButton');
+                        
+                        // 가장 아래쪽 입력 요소 찾기
+                        let targetElement = null;
+                        if (formElements.length > 0) {
+                            targetElement = formElements[formElements.length - 1];
+                        } else if (inputElements.length > 0) {
+                            targetElement = inputElements[inputElements.length - 1];
+                        } else if (buttonElements.length > 0) {
+                            targetElement = buttonElements[buttonElements.length - 1];
+                        }
+                        
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                            });
+                        }
                     }, 500);
                 }
-                forceScrollToBottom();
+                scrollToInputArea();
                 </script>
                 """, unsafe_allow_html=True)
                 
@@ -557,6 +564,34 @@ if st.session_state.step < len(questions):
                         st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                         
                         st.session_state.step += 1
+                        
+                        # 입력창이 보이도록 스크롤
+                        st.markdown("""
+                        <script>
+                        setTimeout(function() {
+                            const inputElements = document.querySelectorAll('input[type="text"], input[type="number"]');
+                            const formElements = document.querySelectorAll('[data-testid="stForm"]');
+                            const buttonElements = document.querySelectorAll('.stButton');
+                            
+                            let targetElement = null;
+                            if (formElements.length > 0) {
+                                targetElement = formElements[formElements.length - 1];
+                            } else if (inputElements.length > 0) {
+                                targetElement = inputElements[inputElements.length - 1];
+                            } else if (buttonElements.length > 0) {
+                                targetElement = buttonElements[buttonElements.length - 1];
+                            }
+                            
+                            if (targetElement) {
+                                targetElement.scrollIntoView({ 
+                                    behavior: 'smooth', 
+                                    block: 'center' 
+                                });
+                            }
+                        }, 500);
+                        </script>
+                        """, unsafe_allow_html=True)
+                        
                         st.rerun()
         
         elif q['type'] == 'multiselect': # 다중 선택 처리
