@@ -378,40 +378,32 @@ st.markdown(f"""
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
 # 초기 환영 메시지 (항상 표시)
-with st.container():
-    st.markdown("""
-    <div class="master-message">
-        <strong>피터핏 AI 상담사</strong><br><br>
-        안녕하세요! 피터핏 스마트 피팅 시스템입니다. 😊<br><br>
-        
-        <strong>📋 상담을 위해 다음 정보를 알려주세요:</strong><br>
-        • 밑가슴 실측 (예: 74cm)<br>
-        • 평소 브라 사이즈 (예: 75B)<br>
-        • 체형 특성 (군살없음/보통/많음)<br>
-        • 원하는 제품 (루나/스텔라/아우라/베라)<br><br>
-        
-        <strong>입력 예시:</strong> "밑가슴 74cm, 평소 75B, 군살보통, 루나 브라 상담해주세요"<br><br>
-        
-        또는 위의 빠른 상담 버튼을 클릭해서 시작하셔도 됩니다! 🚀
-    </div>
-    """, unsafe_allow_html=True)
+st.info("""
+**피터핏 AI 상담사** 😊
+
+안녕하세요! 피터핏 스마트 피팅 시스템입니다.
+
+📋 **상담을 위해 다음 정보를 알려주세요:**
+• 밑가슴 실측 (예: 74cm)
+• 평소 브라 사이즈 (예: 75B)  
+• 체형 특성 (군살없음/보통/많음)
+• 원하는 제품 (루나/스텔라/아우라/베라)
+
+**입력 예시:** "밑가슴 74cm, 평소 75B, 군살보통, 루나 브라 상담해주세요"
+
+또는 위의 빠른 상담 버튼을 클릭해서 시작하셔도 됩니다! 🚀
+""")
 
 # 이전 대화 표시
 for msg in st.session_state.messages:
     if msg["role"] == "user":
-        st.markdown(f"""
-        <div class="client-message">
-            <strong>고객</strong><br>
-            {msg["content"]}
-        </div>
-        """, unsafe_allow_html=True)
+        with st.chat_message("user", avatar="👤"):
+            st.write(f"**고객**")
+            st.write(msg["content"])
     else:
-        st.markdown(f"""
-        <div class="master-message">
-            <strong>피터핏 AI</strong><br>
-            {msg["content"]}
-        </div>
-        """, unsafe_allow_html=True)
+        with st.chat_message("assistant", avatar="🤖"):
+            st.write(f"**피터핏 AI**")
+            st.write(msg["content"])
 
 # 분석 결과 표시
 if st.session_state.analysis_result:
@@ -501,44 +493,44 @@ if user_input := st.chat_input("메시지를 입력하세요"):
         st.session_state.analysis_result = analysis_result
         
         response = f"""
-        네! 분석이 완료되었습니다. 🎉<br><br>
-        
-        <strong>📊 고객님의 추천 사이즈: {analysis_result['recommended_size']}</strong><br><br>
-        
-        고객님께서 말씀해주신 정보를 바탕으로 분석한 결과입니다:<br>
-        • 밑가슴 {underbust}cm → {analysis_result['recommended_size'][:2]} 밴드<br>
-        • 현재 {current_size}에서 → {analysis_result['recommended_size'][2:]} 컵으로 조정<br>
-        • {lineup} 브라가 고객님께 잘 맞을 것 같습니다!<br><br>
-        
-        위쪽에 상세한 분석 결과와 차트를 확인해보세요! 📈<br><br>
-        
-        다른 제품에 대해서도 궁금하시거나, 추가 질문이 있으시면 언제든 말씀해주세요! 😊
+네! 분석이 완료되었습니다. 🎉
+
+📊 고객님의 추천 사이즈: {analysis_result['recommended_size']}
+
+고객님께서 말씀해주신 정보를 바탕으로 분석한 결과입니다:
+• 밑가슴 {underbust}cm → {analysis_result['recommended_size'][:2]} 밴드
+• 현재 {current_size}에서 → {analysis_result['recommended_size'][2:]} 컵으로 조정
+• {lineup} 브라가 고객님께 잘 맞을 것 같습니다!
+
+위쪽에 상세한 분석 결과와 차트를 확인해보세요! 📈
+
+다른 제품에 대해서도 궁금하시거나, 추가 질문이 있으시면 언제든 말씀해주세요! 😊
         """
         
     elif any(product in user_input_lower for product in ["루나", "스텔라", "아우라", "베라"]):
         # 제품 문의
         if "루나" in user_input_lower:
             response = """
-            🌙 <strong>루나 브라</strong>에 관심을 가져주셔서 감사합니다!<br><br>
-            
-            루나 브라는 달빛처럼 부드러운 착용감이 특징인 제품입니다.<br>
-            • 초경량 소재로 하루 종일 편안함<br>
-            • 무봉제 설계로 자연스러운 실루엣<br>
-            • 가격: 189,000원<br><br>
-            
-            정확한 사이즈 추천을 위해 다음 정보를 알려주시겠어요?<br>
-            "밑가슴 ○○cm, 평소 ○○○, 군살○○○, 루나 브라" 형식으로 말씀해주세요! 😊
+🌙 루나 브라에 관심을 가져주셔서 감사합니다!
+
+루나 브라는 달빛처럼 부드러운 착용감이 특징인 제품입니다.
+• 초경량 소재로 하루 종일 편안함
+• 무봉제 설계로 자연스러운 실루엣
+• 가격: 189,000원
+
+정확한 사이즈 추천을 위해 다음 정보를 알려주시겠어요?
+"밑가슴 ○○cm, 평소 ○○○, 군살○○○, 루나 브라" 형식으로 말씀해주세요! 😊
             """
         elif "스텔라" in user_input_lower:
             response = """
-            ⭐ <strong>스텔라 브라</strong>에 관심을 가져주셔서 감사합니다!<br><br>
-            
-            스텔라 브라는 별처럼 빛나는 볼륨 솔루션입니다.<br>
-            • 3D 컨투어 패드로 극적인 볼륨업<br>
-            • 리프팅 와이어로 아름다운 데콜테 라인<br>
-            • 가격: 225,000원<br><br>
-            
-            사이즈 상담을 위해 측정 정보를 알려주세요! 📏
+⭐ 스텔라 브라에 관심을 가져주셔서 감사합니다!
+
+스텔라 브라는 별처럼 빛나는 볼륨 솔루션입니다.
+• 3D 컨투어 패드로 극적인 볼륨업
+• 리프팅 와이어로 아름다운 데콜테 라인
+• 가격: 225,000원
+
+사이즈 상담을 위해 측정 정보를 알려주세요! 📏
             """
         else:
             response = """
@@ -554,20 +546,20 @@ if user_input := st.chat_input("메시지를 입력하세요"):
             """
     else:
         response = """
-        안녕하세요! 😊<br><br>
-        
-        정확한 사이즈 추천을 위해서는 다음 정보가 필요합니다:<br><br>
-        
-        📋 <strong>필수 정보</strong><br>
-        • 밑가슴 실측 (예: 74cm)<br>
-        • 평소 브라 사이즈 (예: 75B)<br>
-        • 체형 특성 (군살없음/보통/많음)<br>
-        • 원하는 제품 (루나/스텔라/아우라/베라)<br><br>
-        
-        <strong>입력 예시:</strong><br>
-        "밑가슴 74cm, 평소 75B, 군살보통, 루나 브라 상담해주세요"<br><br>
-        
-        또는 위의 빠른 상담 버튼을 이용해보세요! 🚀
+안녕하세요! 😊
+
+정확한 사이즈 추천을 위해서는 다음 정보가 필요합니다:
+
+📋 필수 정보
+• 밑가슴 실측 (예: 74cm)
+• 평소 브라 사이즈 (예: 75B)
+• 체형 특성 (군살없음/보통/많음)
+• 원하는 제품 (루나/스텔라/아우라/베라)
+
+입력 예시:
+"밑가슴 74cm, 평소 75B, 군살보통, 루나 브라 상담해주세요"
+
+또는 위의 빠른 상담 버튼을 이용해보세요! 🚀
         """
     
     # 응답 추가
