@@ -99,8 +99,11 @@ st.markdown("""
         line-height: 1.5;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         animation: fadeIn 0.5s ease-out;
-        max-width: 85%;
+        max-width: fit-content; /* 글자에 맞게 크기 조정 */
+        width: auto;
         margin-bottom: 10px;
+        word-wrap: break-word;
+        display: inline-block;
     }
     
     .user-message {
@@ -113,9 +116,12 @@ st.markdown("""
         font-weight: 600;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         animation: fadeIn 0.5s ease-out;
-        max-width: 80%;
+        max-width: fit-content; /* 글자에 맞게 크기 조정 */
+        width: auto;
         text-align: right;
         margin-bottom: 10px;
+        word-wrap: break-word;
+        display: inline-block;
     }
 
     .phase-tag {
@@ -202,6 +208,27 @@ st.markdown("""
         0% { background-color: rgba(255, 235, 59, 0.2); }
         100% { background-color: transparent; }
     }
+    
+    /* 타이핑 애니메이션 */
+    @keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+    }
+    
+    @keyframes blink-caret {
+        from, to { border-color: transparent }
+        50% { border-color: #191919; }
+    }
+    
+    .typing-animation {
+        overflow: hidden;
+        border-right: 2px solid #191919;
+        white-space: nowrap;
+        margin: 0 auto;
+        animation: 
+            typing 2s steps(40, end),
+            blink-caret .75s step-end infinite;
+    }
 </style>
 
 <script>
@@ -215,6 +242,19 @@ function autoFocus() {
         }
     }, 500);
 }
+
+// 자동 스크롤 함수
+function scrollToBottom() {
+    setTimeout(function() {
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+    }, 100);
+}
+
+// 페이지 로드시 스크롤
+document.addEventListener('DOMContentLoaded', scrollToBottom);
 </script>
 </style>
 """, unsafe_allow_html=True)
@@ -373,17 +413,31 @@ chat_placeholder = st.container()
 with chat_placeholder:
     st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
     # 히스토리 렌더링
-    for msg in st.session_state.history:
+    for idx, msg in enumerate(st.session_state.history):
         if msg['role'] == 'bot':
+            # 마지막 봇 메시지에 타이핑 효과 적용
+            typing_class = "typing-animation" if idx == len(st.session_state.history) - 1 and msg['role'] == 'bot' else ""
             st.markdown(f"""
             <div style='align-self: flex-start; max-width: 100%;'>
                 <div class='phase-tag'>{msg.get('phase', '')}</div>
-                <div class='bot-message'>{msg['text']}</div>
+                <div class='bot-message {typing_class}'>{msg['text']}</div>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown(f"<div class='user-message'>{msg['text']}</div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
+    
+    # 자동 스크롤 실행
+    st.markdown("""
+    <script>
+    setTimeout(function() {
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+    }, 100);
+    </script>
+    """, unsafe_allow_html=True)
 
 # 3. 입력 처리 및 로직
 if st.session_state.step < len(questions):
@@ -420,6 +474,19 @@ if st.session_state.step < len(questions):
                 st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "시스템 확인"})
                 
                 st.session_state.step += 1
+                
+                # 자동 스크롤 실행
+                st.markdown("""
+                <script>
+                setTimeout(function() {
+                    window.scrollTo({
+                        top: document.body.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 200);
+                </script>
+                """, unsafe_allow_html=True)
+                
                 st.rerun()
                 
         elif q['type'] == 'select':
