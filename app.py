@@ -9,7 +9,7 @@ import datetime
 # [1. 시스템 설정 및 디자인]
 # ==========================================
 st.set_page_config(
-    page_title="IMD 스마트 피팅 마스터",
+    page_title="아이엠디 피팅 엔진",
     page_icon="✨",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -25,14 +25,14 @@ st.markdown("""
     }
     
     .stApp {
-        background-color: #e6e6e6; /* 카톡 배경색 */
+        background-color: #b2c7da; /* 카톡 배경색 */
         color: #333333;
     }
 
     /* 뉴스 티커 */
     .news-ticker {
-        background: #f7e600; /* 카톡 노랑 */
-        border-left: 4px solid #ccab00; /* 진한 노랑 */
+        background: #ffeb3b; /* 카톡 노랑 */
+        border-left: 4px solid #f9a825; /* 진한 노랑 */
         color: #3c4043;
         padding: 10px 20px;
         font-size: 0.9rem;
@@ -50,8 +50,8 @@ st.markdown("""
         flex-wrap: wrap;
     }
     .badge {
-        background: #ffe656; /* 카톡 노랑 */
-        border: 1px solid #ccab00;
+        background: #ffeb3b; /* 카톡 노랑 */
+        border: 1px solid #f9a825;
         color: #3c4043;
         padding: 8px 16px;
         border-radius: 20px;
@@ -87,7 +87,7 @@ st.markdown("""
     }
     
     .user-message {
-        background: #f7e600; /* 카톡 사용자 말풍선 */
+        background: #ffeb3b; /* 카톡 사용자 말풍선 */
         color: #3c4043;
         padding: 15px 20px;
         border-radius: 15px 15px 0 15px; /* 카톡 우측 말풍선 */
@@ -142,9 +142,9 @@ st.markdown("""
     
     /* 버튼 커스텀 */
     .stButton > button {
-        background-color: #f7e600; /* 카톡 노랑 */
+        background-color: #ffeb3b; /* 카톡 노랑 */
         color: #3c4043;
-        border: 1px solid #ccab00;
+        border: 1px solid #f9a825;
         border-radius: 8px;
         padding: 10px 15px;
         font-size: 1rem;
@@ -153,8 +153,8 @@ st.markdown("""
         font-weight: 600;
     }
     .stButton > button:hover {
-        background-color: #ffe656;
-        border-color: #bfa000;
+        background-color: #fff176;
+        border-color: #f57f17;
     }
     /* 최종 CTA 버튼 */
     .final-cta-button {
@@ -198,7 +198,7 @@ def create_analysis_chart(user_data):
         theta=categories,
         fill='toself',
         fillcolor='rgba(255, 235, 59, 0.4)', # 카톡 노랑 투명
-        line=dict(color='#f7e600', width=2), # 카톡 노랑
+        line=dict(color='#ffeb3b', width=2), # 카톡 노랑
         marker=dict(color='#3c4043', size=4), # 진한 회색
     ))
     
@@ -214,7 +214,7 @@ def create_analysis_chart(user_data):
         margin=dict(t=20, b=20, l=20, r=20),
         height=350,
         title=dict(
-            text="IMD AI 체형 분석",
+            text="아이엠디 AI 체형 분석",
             font=dict(size=16, color='#3c4043'),
             x=0.5
         ),
@@ -246,45 +246,45 @@ imd_products = {
 }
 
 
-# 시나리오 데이터 (순차적 질문)
+# 시나리오 데이터 (순차적 질문) - ** 강조표시 제거
 questions = [
     {
         "phase": "1단계: 기본 정보 입력",
-        "question": "안녕하세요! 고객님의 완벽한 핏을 찾아드리는 **IMD 피팅 마스터 AI**입니다.\n15년간 축적된 데이터로 정밀 진단을 시작합니다.\n\n먼저, **밑가슴 둘레 실측 사이즈(cm)**를 알려주세요. 줄자로 갈비뼈 바로 아랫부분을 수평으로 타이트하게 측정해주시면 됩니다.",
+        "question": "안녕하세요! 고객님의 완벽한 핏을 찾아드리는 아이엠디 피팅 마스터 AI입니다.\n15년간 축적된 데이터로 정밀 진단을 시작합니다.\n\n먼저, 밑가슴 둘레 실측 사이즈(cm)를 알려주세요. 줄자로 갈비뼈 바로 아랫부분을 수평으로 타이트하게 측정해주시면 됩니다.",
         "key": "underbust",
         "type": "number",
-        "confirm": "네, 밑가슴 둘레 **{value}cm** 확인했습니다. 밴드 사이즈를 계산합니다."
+        "confirm": "네, 밑가슴 둘레 {value}cm 확인했습니다. 밴드 사이즈를 계산합니다."
     },
     {
         "phase": "2단계: 현재 브라 상태",
-        "question": "현재 가장 자주 착용하시는 **일반 브라 사이즈**는 어떻게 되시나요? (예: 80B, 75A)",
+        "question": "현재 가장 자주 착용하시는 일반 브라 사이즈는 어떻게 되시나요? (예: 80B, 75A)",
         "key": "current_bra",
         "type": "text",
-        "confirm": "현재 착용 사이즈 **{value}**를 기준으로 고객님의 컵 적합도를 분석하겠습니다."
+        "confirm": "현재 착용 사이즈 {value}를 기준으로 고객님의 컵 적합도를 분석하겠습니다."
     },
     {
         "phase": "3단계: 컵 피팅 진단",
-        "question": "지금 브라를 착용했을 때, **컵의 상태**는 어떠신가요?\n(컵이 남거나 넘치는 것은 현재 브라가 가슴 형태와 맞지 않는다는 신호입니다.)",
+        "question": "지금 브라를 착용했을 때, 컵의 상태는 어떠신가요?\n(컵이 남거나 넘치는 것은 현재 브라가 가슴 형태와 맞지 않는다는 신호입니다.)",
         "key": "cup_status",
         "type": "select",
         "options": ["① 컵이 많이 남음 (들뜸)", "② 약간 남음", "③ 딱 맞음", "④ 컵이 넘침 (눌림)"],
-        "confirm": "컵 피팅 상태 **'{value}'** 확인했습니다. 컵 용량 재산정이 필요합니다."
+        "confirm": "컵 피팅 상태 '{value}' 확인했습니다. 컵 용량 재산정이 필요합니다."
     },
     {
         "phase": "4단계: 체형 특성 분석",
-        "question": "가슴 주변(겨드랑이, 등)의 **군살 정도**를 선택해주세요.\n이는 보정력이 필요한 제품 선택에 중요한 기준이 됩니다.",
+        "question": "가슴 주변(겨드랑이, 등)의 군살 정도를 선택해주세요.\n이는 보정력이 필요한 제품 선택에 중요한 기준이 됩니다.",
         "key": "flab",
         "type": "select",
         "options": ["① 군살 거의 없음", "② 약간 있음", "③ 보통", "④ 군살 많음"],
-        "confirm": "고객님의 체형 특성 **'{value}'** 데이터를 입력했습니다."
+        "confirm": "고객님의 체형 특성 '{value}' 데이터를 입력했습니다."
     },
     {
         "phase": "5단계: 가슴 형태 확인",
-        "question": "고객님의 **가슴 형태**에 가장 해당되는 특징을 모두 선택해주세요. (중복 선택 가능)",
+        "question": "고객님의 가슴 형태에 가장 해당되는 특징을 모두 선택해주세요. (중복 선택 가능)",
         "key": "shape",
         "type": "multiselect", # 다중 선택으로 변경
         "options": ["① 처진 가슴", "② 퍼진 가슴 (벌어짐)", "③ 윗가슴 꺼짐", "④ 탄력 저하", "⑤ 일반/원형"],
-        "confirm": "가슴 형태 데이터 **'{value}'**까지 모두 수집 완료되었습니다. 잠시만 기다려주시면 IMD AI가 최적의 결과를 브리핑하겠습니다."
+        "confirm": "가슴 형태 데이터 '{value}'까지 모두 수집 완료되었습니다. 잠시만 기다려주시면 아이엠디 AI가 최적의 결과를 브리핑하겠습니다."
     }
 ]
 
@@ -300,9 +300,9 @@ if 'user_data' not in st.session_state: st.session_state.user_data = {}
 # 1. 헤더 영역 (뉴스 티커 + 배지)
 current_time = datetime.datetime.now().strftime("%H:%M")
 news = [
-    "IMD AI, 고객별 맞춤형 추천으로 반품률 획기적 감소!",
-    "이제 내 몸에 꼭 맞는 브라를 5분 안에! IMD 스마트 피팅",
-    "수많은 고객들이 IMD AI로 인생 브라를 찾았습니다! 지금 바로 경험해보세요."
+    "아이엠디 AI, 고객별 맞춤형 추천으로 반품률 획기적 감소!",
+    "이제 내 몸에 꼭 맞는 브라를 5분 안에! 아이엠디 스마트 피팅",
+    "수많은 고객들이 아이엠디 AI로 인생 브라를 찾았습니다! 지금 바로 경험해보세요."
 ]
 st.markdown(f"""
 <div class='news-ticker'>
@@ -310,12 +310,12 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1 style='text-align: center; color: #3c4043; font-size: 3rem; font-weight: 900;'>IMD 스마트 피팅 마스터</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #5f6368;'>IMD 15년 노하우가 집약된 AI 피팅 엔진 v2.5</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #3c4043; font-size: 3rem; font-weight: 900;'>아이엠디 피팅 엔진</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #5f6368;'>모든 디자인과 UI는 수정이 가능합니다</p>", unsafe_allow_html=True)
 
 st.markdown("""
 <div class="trust-badges">
-    <div class="badge">✨ IMD만의 정밀 로직</div>
+    <div class="badge">✨ 아이엠디만의 정밀 로직</div>
     <div class="badge">🛡️ 오류 없는 정확성</div>
     <div class="badge">🚀 5분 실시간 분석</div>
 </div>
@@ -481,7 +481,7 @@ else:
     with col3:
         st.markdown(f"""
         <div class='kpi-box'>
-            <div class='kpi-label'>IMD AI 정확도</div>
+            <div class='kpi-label'>아이엠디 AI 정확도</div>
             <div class='kpi-value'>99.2%</div>
         </div>""", unsafe_allow_html=True)
         
@@ -491,19 +491,19 @@ else:
     c1, c2 = st.columns([1, 1])
     
     with c1:
-        st.markdown("### 📊 IMD AI 체형 정밀 분석")
+        st.markdown("### 📊 아이엠디 AI 체형 정밀 분석")
         fig = create_analysis_chart(ud)
         st.plotly_chart(fig, use_container_width=True)
         
     with c2:
-        st.markdown("### 📝 IMD 피팅 로직 분석")
+        st.markdown("### 📝 아이엠디 피팅 로직 분석")
         st.markdown(f"""
         <div style='background: #f7f7f7; padding: 20px; border-radius: 10px; line-height: 1.8; border: 1px solid #e0e0e0; color: #3c4043;'>
             <span style='color: #888;'>[STEP 1]</span> 실측 <strong>{ub}cm</strong> 확인 → 밴드 사이즈 <strong>{rec_band}</strong>로 조정<br>
             <span style='color: #888;'>[STEP 2]</span> 현재 컵 상태 <strong>'{ud.get('cup_status', '').split(' ')[0]}'</strong> 분석 → 컵 용량 재조정 필요<br>
             <span style='color: #888;'>[STEP 3]</span> 체형 <strong>'{ud.get('flab', '').split(' ')[0]}'</strong> 및 형태 <strong>'{ud.get('shape', '').split(' ')[0]}'</strong> 고려 → 맞춤 패턴 매칭<br>
             <hr style='border-color: #ddd;'>
-            <strong style='color: #1a73e8; font-size: 1.2rem;'>💡 최종 IMD AI 추천!</strong><br>
+            <strong style='color: #1a73e8; font-size: 1.2rem;'>💡 최종 아이엠디 AI 추천!</strong><br>
             고객님께 가장 적합한 사이즈는 <strong>{final_recommended_size} (예상)</strong> 이며,<br>
             <strong>[{rec_product_name}]</strong> 라인업을 강력히 추천합니다.
         </div>
