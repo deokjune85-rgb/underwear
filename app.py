@@ -530,6 +530,3 @@ else:
     """, unsafe_allow_html=True)
     
     st.markdown("</div>", unsafe_allow_html=True)
-```http://googleusercontent.com/image_generation_content/1
-
-````
