@@ -329,26 +329,72 @@ with col4:
         st.session_state.messages.append({"role": "user", "content": "베라 브라 상담받고 싶어요"})
         st.rerun()
 
+# 회사 뉴스/강점 섹션
+st.markdown("""
+<div style="background: linear-gradient(135deg, #fff8e1, #fffde7); border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #ffcc02;">
+    <div style="text-align: center; margin-bottom: 15px;">
+        <strong style="color: #f57f17; font-size: 1.1rem;">🎉 피터핏 주요 성과 & 뉴스</strong>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+        <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
+            <div style="color: #4285f4; font-size: 1.5rem; font-weight: 700;">15년</div>
+            <div style="color: #5f6368; font-size: 0.9rem;">브라 전문 기업</div>
+        </div>
+        <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
+            <div style="color: #34a853; font-size: 1.5rem; font-weight: 700;">50만+</div>
+            <div style="color: #5f6368; font-size: 0.9rem;">누적 고객</div>
+        </div>
+        <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
+            <div style="color: #ea4335; font-size: 1.5rem; font-weight: 700;">98.7%</div>
+            <div style="color: #5f6368; font-size: 0.9rem;">고객 만족도</div>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# 실시간 뉴스 티커 (자동 갱신되는 느낌)
+import random
+import datetime
+
+news_items = [
+    "📺 MBN 뉴스 소개: '피터핏, AI 피팅으로 속옷업계 혁신'",
+    "🏆 2024 대한민국 우수기업 브랜드 대상 수상",
+    "📱 네이버쇼핑 속옷 카테고리 1위 달성 (3개월 연속)",
+    "✨ 신제품 '루나 브라' 출시 1주만에 완판 기록",
+    "🎯 고객 후기: '처음으로 맞는 브라를 찾았어요!' (김○○님)",
+    "📊 업계 최초 AI 피팅 시스템 도입으로 반품률 80% 감소"
+]
+
+current_news = random.choice(news_items)
+current_time = datetime.datetime.now().strftime("%H:%M")
+
+st.markdown(f"""
+<div style="background: #2196f3; color: white; padding: 8px 15px; border-radius: 6px; margin: 10px 0; font-size: 0.9rem;">
+    <span style="color: #ffeb3b;">🔴 LIVE</span> {current_time} | {current_news}
+</div>
+""", unsafe_allow_html=True)
+
 # 메인 채팅 컨테이너
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
 # 초기 환영 메시지 (항상 표시)
-st.markdown("""
-<div class="master-message">
-    <strong>피터핏 AI 상담사</strong><br><br>
-    안녕하세요! 피터핏 스마트 피팅 시스템입니다. 😊<br><br>
-    
-    <strong>📋 상담을 위해 다음 정보를 알려주세요:</strong><br>
-    • 밑가슴 실측 (예: 74cm)<br>
-    • 평소 브라 사이즈 (예: 75B)<br>
-    • 체형 특성 (군살없음/보통/많음)<br>
-    • 원하는 제품 (루나/스텔라/아우라/베라)<br><br>
-    
-    <strong>입력 예시:</strong> "밑가슴 74cm, 평소 75B, 군살보통, 루나 브라 상담해주세요"<br><br>
-    
-    또는 위의 빠른 상담 버튼을 클릭해서 시작하셔도 됩니다! 🚀
-</div>
-""", unsafe_allow_html=True)
+with st.container():
+    st.markdown("""
+    <div class="master-message">
+        <strong>피터핏 AI 상담사</strong><br><br>
+        안녕하세요! 피터핏 스마트 피팅 시스템입니다. 😊<br><br>
+        
+        <strong>📋 상담을 위해 다음 정보를 알려주세요:</strong><br>
+        • 밑가슴 실측 (예: 74cm)<br>
+        • 평소 브라 사이즈 (예: 75B)<br>
+        • 체형 특성 (군살없음/보통/많음)<br>
+        • 원하는 제품 (루나/스텔라/아우라/베라)<br><br>
+        
+        <strong>입력 예시:</strong> "밑가슴 74cm, 평소 75B, 군살보통, 루나 브라 상담해주세요"<br><br>
+        
+        또는 위의 빠른 상담 버튼을 클릭해서 시작하셔도 됩니다! 🚀
+    </div>
+    """, unsafe_allow_html=True)
 
 # 이전 대화 표시
 for msg in st.session_state.messages:
