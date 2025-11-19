@@ -91,7 +91,7 @@ st.markdown("""
     
     .bot-message {
         background-color: #ffffff; /* 흰색 말풍선 */
-        border: 2px solid #191919; /* 검은색 실선 테두리 */
+        border: 1px solid #d0d0d0; /* 얇은 회색 실선 */
         border-radius: 15px 15px 15px 0; /* 카톡 좌측 말풍선 */
         color: #191919; /* 진한 검정 */
         padding: 15px;
@@ -109,7 +109,7 @@ st.markdown("""
     .user-message {
         background: #ffeb3b; /* 카톡 사용자 말풍선 */
         color: #191919; /* 진한 검정 */
-        border: 2px solid #191919; /* 검은색 실선 테두리 */
+        border: 1px solid #d0d0d0; /* 얇은 회색 실선 */
         padding: 15px 20px;
         border-radius: 15px 15px 0 15px; /* 카톡 우측 말풍선 */
         align-self: flex-end; /* 오른쪽 정렬 */
@@ -246,15 +246,50 @@ function autoFocus() {
 // 자동 스크롤 함수
 function scrollToBottom() {
     setTimeout(function() {
+        // 여러 방법으로 스크롤 시도
         window.scrollTo({
             top: document.body.scrollHeight,
             behavior: 'smooth'
         });
+        
+        // Streamlit 컨테이너도 스크롤
+        const containers = document.querySelectorAll('.main, .stApp');
+        containers.forEach(container => {
+            container.scrollTop = container.scrollHeight;
+        });
+        
+        // 페이지 전체 스크롤
+        document.documentElement.scrollTop = document.documentElement.scrollHeight;
+        
     }, 100);
 }
 
 // 페이지 로드시 스크롤
 document.addEventListener('DOMContentLoaded', scrollToBottom);
+
+// MutationObserver로 DOM 변화 감지하여 자동 스크롤
+const observer = new MutationObserver(function(mutations) {
+    let shouldScroll = false;
+    mutations.forEach(function(mutation) {
+        if (mutation.addedNodes.length > 0) {
+            shouldScroll = true;
+        }
+    });
+    if (shouldScroll) {
+        setTimeout(scrollToBottom, 200);
+    }
+});
+
+// 채팅 컨테이너 감시 시작
+setTimeout(function() {
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer) {
+        observer.observe(chatContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
+}, 1000);
 </script>
 </style>
 """, unsafe_allow_html=True)
@@ -481,15 +516,28 @@ if st.session_state.step < len(questions):
                 
                 st.session_state.step += 1
                 
-                # 자동 스크롤 실행
+                # 강화된 자동 스크롤 실행
                 st.markdown("""
                 <script>
-                setTimeout(function() {
-                    window.scrollTo({
-                        top: document.body.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }, 200);
+                function forceScrollToBottom() {
+                    // 즉시 스크롤
+                    window.scrollTo(0, document.body.scrollHeight);
+                    document.documentElement.scrollTop = document.documentElement.scrollHeight;
+                    
+                    // 부드러운 스크롤로 재시도
+                    setTimeout(function() {
+                        window.scrollTo({
+                            top: document.body.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    }, 100);
+                    
+                    // 한번 더 강제 스크롤
+                    setTimeout(function() {
+                        window.scrollTo(0, document.body.scrollHeight);
+                    }, 500);
+                }
+                forceScrollToBottom();
                 </script>
                 """, unsafe_allow_html=True)
                 
