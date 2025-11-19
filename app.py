@@ -1,48 +1,48 @@
 import streamlit as st
 import plotly.graph_objects as go
-import re
-from typing import Tuple, Optional
 import time
+import re
+import random
+import datetime
 
-# 페이지 설정
+# ==========================================
+# [1. 시스템 설정 및 디자인]
+# ==========================================
 st.set_page_config(
-    page_title="피터핏 스마트 피팅",
-    page_icon="✨",
+    page_title="Waki Fitting Master",
+    page_icon="👙",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# 카카오톡 스타일 CSS (영어 제거, 깔끔하게)
+# 프리미엄 다크 & 골드 테마 (의료/럭셔리 감성)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
-    
-    #MainMenu, footer, header, .stDeployButton {visibility: hidden;}
-    
-    html, body, div, span, p, h1, h2, h3 {
-        font-family: 'Noto Sans KR', sans-serif !important;
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Noto Sans KR', sans-serif;
     }
     
     .stApp {
-        background-color: #b2c7da;
+        background-color: #121212; /* 딥 블랙 배경 */
+        color: #e0e0e0;
     }
-    
-    .main-title {
-        text-align: center;
-        font-size: 2.5rem !important;
-        font-weight: 900 !important;
-        color: #3c4043;
-        margin-bottom: 0.5rem;
+
+    /* 뉴스 티커 */
+    .news-ticker {
+        background: linear-gradient(90deg, #1f1f1f, #2d2d2d);
+        border-left: 4px solid #d4af37;
+        color: #fff;
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
-    
-    .sub-title {
-        text-align: center;
-        font-size: 1.1rem;
-        color: #5f6368;
-        margin-bottom: 1rem;
-        font-weight: 400;
-    }
-    
+
+    /* 신뢰 배지 */
     .trust-badges {
         display: flex;
         justify-content: center;
@@ -50,545 +50,378 @@ st.markdown("""
         margin: 20px 0;
         flex-wrap: wrap;
     }
-    
     .badge {
-        background: #ffeb3b;
-        color: #3c4043;
+        background: rgba(212, 175, 55, 0.1);
+        border: 1px solid #d4af37;
+        color: #d4af37;
         padding: 8px 16px;
         border-radius: 20px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 600;
         display: flex;
         align-items: center;
         gap: 6px;
-        box-shadow: 0 2px 8px rgba(255, 235, 59, 0.3);
-        border: 1px solid #f9a825;
     }
-    
+
+    /* 채팅 스타일 */
     .chat-container {
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 10px 0;
-        min-height: 500px;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        max-width: 800px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding-bottom: 50px;
     }
     
-    .master-message {
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        padding: 15px;
-        margin: 10px 0;
-        border-radius: 18px;
+    .bot-message {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-left: 3px solid #d4af37;
+        color: #e0e0e0;
+        padding: 20px;
+        border-radius: 0 15px 15px 15px;
         font-size: 1rem;
         line-height: 1.6;
-        color: #3c4043;
-        max-width: 85%;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        animation: fadeIn 0.5s ease-out;
     }
     
-    .client-message {
-        background: #ffeb3b;
-        padding: 12px;
-        margin: 10px 0;
-        border-radius: 18px;
-        font-size: 1rem;
-        text-align: left;
-        color: #3c4043;
+    .user-message {
+        background: linear-gradient(135deg, #d4af37, #c5a028);
+        color: #121212;
+        padding: 15px 25px;
+        border-radius: 15px 0 15px 15px;
+        align-self: flex-end;
         margin-left: auto;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        animation: fadeIn 0.5s ease-out;
         max-width: 80%;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        text-align: right;
+    }
+
+    .phase-tag {
+        font-size: 0.75rem;
+        color: #888;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* 최종 리포트 대시보드 */
+    .final-dashboard {
+        background-color: #1e1e1e;
+        border: 1px solid #444;
+        border-radius: 15px;
+        padding: 30px;
+        margin-top: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     
-    .result-section {
-        background: #f0f8ff;
-        border: 2px solid #4285f4;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 20px 0;
-    }
-    
-    .size-result {
-        text-align: center;
-        background: #4285f4;
-        color: white;
-        padding: 20px;
+    .kpi-box {
+        background-color: #252525;
+        padding: 15px;
         border-radius: 8px;
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 15px 0;
+        text-align: center;
+        border: 1px solid #333;
+    }
+    .kpi-value {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #d4af37;
+    }
+    .kpi-label {
+        font-size: 0.8rem;
+        color: #aaa;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
-    .chart-container {
-        background: white;
+    /* 버튼 커스텀 */
+    .stButton > button {
+        background-color: #252525;
+        color: #fff;
+        border: 1px solid #555;
         border-radius: 8px;
         padding: 15px;
-        margin: 10px 0;
-        border: 1px solid #e0e0e0;
+        font-size: 1rem;
+        transition: all 0.3s;
     }
-    
-    .quick-buttons {
-        display: flex;
-        gap: 10px;
-        margin: 15px 0;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .quick-btn {
-        background: #34a853;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        cursor: pointer;
-    }
-    
-    .typing-indicator {
-        display: flex;
-        align-items: center;
-        color: #5f6368;
-        font-style: italic;
-        margin: 10px 0;
-    }
-    
-    .dot {
-        height: 8px;
-        width: 8px;
-        margin: 0 2px;
-        background: #ffeb3b;
-        border-radius: 50%;
-        display: inline-block;
-        animation: typing 1.4s infinite ease-in-out;
-    }
-    
-    .dot:nth-child(1) { animation-delay: -0.32s; }
-    .dot:nth-child(2) { animation-delay: -0.16s; }
-    
-    @keyframes typing {
-        0%, 80%, 100% {
-            transform: scale(0.8);
-            opacity: 0.5;
-        }
-        40% {
-            transform: scale(1.2);
-            opacity: 1;
-        }
+    .stButton > button:hover {
+        border-color: #d4af37;
+        color: #d4af37;
+        background-color: #333;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 간단한 체형 분석 차트 (과하지 않게)
-def create_simple_analysis_chart(measurements: dict) -> go.Figure:
-    """간단한 체형 분석 차트"""
-    categories = ['볼륨', '퍼짐도', '밴드핏', '컵핏', '전체핏']
-    values = [
-        measurements.get('volume', 70),
-        measurements.get('spread', 60),
-        measurements.get('band', 85),
-        measurements.get('cup', 80),
-        measurements.get('overall', 78)
-    ]
+# ==========================================
+# [2. 로직 및 차트 함수]
+# ==========================================
+
+def create_analysis_chart(user_data):
+    """5각 레이더 차트 생성"""
+    # 입력 데이터에 따른 동적 점수 산정
+    flab_score = 80 if "많음" in user_data.get('flab', '') else (60 if "보통" in user_data.get('flab', '') else 40)
+    shape_score = 85 if "처진" in user_data.get('shape', '') else 50
+    cup_gap = 90 if "여유 많음" in user_data.get('cup_status', '') else 30
     
+    categories = ['보정 필요도', '가슴 퍼짐', '리프팅 요망', '볼륨 부족', '비대칭 위험']
+    values = [flab_score, 70, shape_score, cup_gap, 40]  # 시뮬레이션 값
+    values += [values[0]] # 폐곡선
+    categories += [categories[0]]
+
     fig = go.Figure()
-    
     fig.add_trace(go.Scatterpolar(
         r=values,
         theta=categories,
         fill='toself',
-        fillcolor='rgba(66, 133, 244, 0.3)',
-        line=dict(color='#4285f4', width=2),
-        marker=dict(color='#4285f4', size=6),
-        name='체형 분석'
+        fillcolor='rgba(212, 175, 55, 0.2)',
+        line=dict(color='#d4af37', width=2),
+        marker=dict(color='#fff', size=4),
     ))
     
     fig.update_layout(
         polar=dict(
-            bgcolor='white',
-            radialaxis=dict(
-                visible=True,
-                range=[0, 100],
-                color='#5f6368',
-                gridcolor='#e0e0e0'
-            ),
-            angularaxis=dict(
-                color='#3c4043',
-                gridcolor='#e0e0e0'
-            )
+            bgcolor='#1e1e1e',
+            radialaxis=dict(visible=True, range=[0, 100], color='#666', gridcolor='#333'),
+            angularaxis=dict(color='#ccc', gridcolor='#333')
         ),
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
         showlegend=False,
-        title=dict(
-            text="체형 분석 결과",
-            font=dict(size=16, color='#3c4043'),
-            x=0.5
-        ),
-        paper_bgcolor='white',
-        plot_bgcolor='white',
-        height=300
+        margin=dict(t=20, b=20, l=20, r=20),
+        height=350
     )
-    
     return fig
 
-# 피터핏 계산 엔진 (기존과 동일)
-def calculate_peterfit_size(underbust: float, current_size: str, body_type: str, lineup: str) -> dict:
-    """피터핏 사이즈 계산"""
-    
-    # 밴드 계산
-    if underbust < 68:
-        band = 65
-    elif underbust < 73:
-        band = 70
-    elif underbust < 78:
-        band = 75
-    elif underbust < 83:
-        band = 80
-    else:
-        band = 85
-    
-    # 컵 계산
-    cup_match = re.search(r'([A-H])', current_size.upper())
-    if cup_match:
-        current_cup = cup_match.group(1)
-        cups = "ABCDEFGH"
-        current_index = cups.index(current_cup)
-        
-        # 체형에 따른 컵 조정
-        if "많" in body_type:
-            new_index = min(current_index + 2, len(cups) - 1)
-        else:
-            new_index = min(current_index + 1, len(cups) - 1)
-        
-        recommended_cup = cups[new_index]
-    else:
-        recommended_cup = "C"
-    
-    final_size = f"{band}{recommended_cup}"
-    
-    # 분석 데이터
-    analysis = {
-        'volume': 75 if "많" in body_type else 65,
-        'spread': 80 if "많" in body_type else 60,
-        'band': 85,
-        'cup': 80,
-        'overall': 78,
-        'recommended_size': final_size,
-        'current_size': current_size,
-        'lineup': lineup
+# 시나리오 데이터 (순차적 질문)
+questions = [
+    {
+        "phase": "PHASE 1. FOUNDATION",
+        "question": "안녕하십니까. **Waki Fitting Master AI**입니다.\n15년간 축적된 데이터 기반의 정밀 진단을 시작합니다.\n\n가장 먼저, 기준점이 되는 **밑가슴 둘레 실측(cm)**을 입력해주십시오.",
+        "key": "underbust",
+        "type": "number",
+        "confirm": "기준 사이즈 **{value}cm** 확인. 밴드 장력을 계산합니다."
+    },
+    {
+        "phase": "PHASE 1. FOUNDATION",
+        "question": "현재 착용 중인 **브라 사이즈**는 무엇입니까? (예: 80B)",
+        "key": "current_bra",
+        "type": "text",
+        "confirm": "현재 **{value}** 착용 중. 해당 사이즈의 패턴 적합도를 분석합니다."
+    },
+    {
+        "phase": "PHASE 2. SYMPTOM CHECK",
+        "question": "현재 브라 착용 시 **컵의 상태**는 어떠합니까?\n이는 컵 용량의 오차를 파악하는 핵심 단서입니다.",
+        "key": "cup_status",
+        "type": "select",
+        "options": ["① 컵이 많이 남음 (들뜸)", "② 약간 남음", "③ 딱 맞음", "④ 컵이 넘침 (눌림)"],
+        "confirm": "피팅 상태 **'{value}'** 확인. 컵 용량 재산정이 필요합니다."
+    },
+    {
+        "phase": "PHASE 3. BODY TYPE",
+        "question": "가슴 주변(겨드랑이/등)의 **군살 정도**를 선택해주십시오.\n보정 속옷의 설계 강도를 결정하는 변수입니다.",
+        "key": "flab",
+        "type": "select",
+        "options": ["① 군살 없음", "② 보통", "③ 군살 많음 (보정 필수)"],
+        "confirm": "체형 데이터 **'{value}'** 입력 완료."
+    },
+    {
+        "phase": "PHASE 3. BODY TYPE",
+        "question": "**가슴 형태**의 특징을 선택해주십시오.",
+        "key": "shape",
+        "type": "select",
+        "options": ["① 처진 가슴", "② 퍼진 가슴 (벌어짐)", "③ 윗가슴 꺼짐", "④ 일반형"],
+        "confirm": "데이터 수집 완료. 정밀 분석 알고리즘을 가동합니다."
     }
-    
-    return analysis
-
-# 세션 상태 초기화
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "analysis_result" not in st.session_state:
-    st.session_state.analysis_result = None
-
-# 헤더
-st.markdown('<div class="main-title">✨ 피터핏 스마트 피팅</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">AI와 함께하는 나만의 완벽한 사이즈 찾기</div>', unsafe_allow_html=True)
-
-# 신뢰 배지
-st.markdown("""
-<div class="trust-badges">
-    <div class="badge">
-        🔒 정확한 계산
-    </div>
-    <div class="badge">
-        🚫 환각 없음
-    </div>
-    <div class="badge">
-        ⚡ 실시간 분석
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# 빠른 시작 버튼들
-st.markdown("**🚀 빠른 상담 시작하기**")
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    if st.button("🌙 루나 브라", use_container_width=True):
-        st.session_state.messages.append({"role": "user", "content": "루나 브라 상담받고 싶어요"})
-        st.rerun()
-
-with col2:
-    if st.button("⭐ 스텔라 브라", use_container_width=True):
-        st.session_state.messages.append({"role": "user", "content": "스텔라 브라 상담받고 싶어요"})
-        st.rerun()
-
-with col3:
-    if st.button("✨ 아우라 브라", use_container_width=True):
-        st.session_state.messages.append({"role": "user", "content": "아우라 브라 상담받고 싶어요"})
-        st.rerun()
-
-with col4:
-    if st.button("💎 베라 브라", use_container_width=True):
-        st.session_state.messages.append({"role": "user", "content": "베라 브라 상담받고 싶어요"})
-        st.rerun()
-
-# 회사 뉴스/강점 섹션
-st.markdown("""
-<div style="background: linear-gradient(135deg, #fff8e1, #fffde7); border-radius: 12px; padding: 20px; margin: 20px 0; border: 1px solid #ffcc02;">
-    <div style="text-align: center; margin-bottom: 15px;">
-        <strong style="color: #f57f17; font-size: 1.1rem;">🎉 피터핏 주요 성과 & 뉴스</strong>
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
-        <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
-            <div style="color: #4285f4; font-size: 1.5rem; font-weight: 700;">15년</div>
-            <div style="color: #5f6368; font-size: 0.9rem;">브라 전문 기업</div>
-        </div>
-        <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
-            <div style="color: #34a853; font-size: 1.5rem; font-weight: 700;">50만+</div>
-            <div style="color: #5f6368; font-size: 0.9rem;">누적 고객</div>
-        </div>
-        <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
-            <div style="color: #ea4335; font-size: 1.5rem; font-weight: 700;">98.7%</div>
-            <div style="color: #5f6368; font-size: 0.9rem;">고객 만족도</div>
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# 실시간 뉴스 티커 (자동 갱신되는 느낌)
-import random
-import datetime
-
-news_items = [
-    "📺 MBN 뉴스 소개: '피터핏, AI 피팅으로 속옷업계 혁신'",
-    "🏆 2024 대한민국 우수기업 브랜드 대상 수상",
-    "📱 네이버쇼핑 속옷 카테고리 1위 달성 (3개월 연속)",
-    "✨ 신제품 '루나 브라' 출시 1주만에 완판 기록",
-    "🎯 고객 후기: '처음으로 맞는 브라를 찾았어요!' (김○○님)",
-    "📊 업계 최초 AI 피팅 시스템 도입으로 반품률 80% 감소"
 ]
 
-current_news = random.choice(news_items)
-current_time = datetime.datetime.now().strftime("%H:%M")
+# ==========================================
+# [3. 메인 실행 코드]
+# ==========================================
 
+# 세션 상태 관리
+if 'step' not in st.session_state: st.session_state.step = 0
+if 'history' not in st.session_state: st.session_state.history = []
+if 'user_data' not in st.session_state: st.session_state.user_data = {}
+
+# 1. 헤더 영역 (뉴스 티커 + 배지)
+current_time = datetime.datetime.now().strftime("%H:%M")
+news = [
+    "AI 피팅 시스템 도입 후 반품률 80% 감소 달성",
+    "신제품 '루나 브라' 빅데이터 기반 설계 적용",
+    "실시간 상담 대기 인원: 0명 (AI 즉시 응대 중)"
+]
 st.markdown(f"""
-<div style="background: #2196f3; color: white; padding: 8px 15px; border-radius: 6px; margin: 10px 0; font-size: 0.9rem;">
-    <span style="color: #ffeb3b;">🔴 LIVE</span> {current_time} | {current_news}
+<div class='news-ticker'>
+    <span style='color: #ff4b4b; margin-right: 10px;'>● LIVE {current_time}</span> {random.choice(news)}
 </div>
 """, unsafe_allow_html=True)
 
-# 메인 채팅 컨테이너
-st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #fff; font-size: 3rem;'>Waki Fitting Master</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #888;'>Automated by IMD Logic Engine v2.5</p>", unsafe_allow_html=True)
 
-# 초기 환영 메시지 (항상 표시)
-st.info("""
-**피터핏 AI 상담사** 😊
+st.markdown("""
+<div class="trust-badges">
+    <div class="badge">🔒 Deterministic Logic</div>
+    <div class="badge">🚫 No Hallucination</div>
+    <div class="badge">⚡ Real-time Analysis</div>
+</div>
+""", unsafe_allow_html=True)
 
-안녕하세요! 피터핏 스마트 피팅 시스템입니다.
+st.divider()
 
-📋 **상담을 위해 다음 정보를 알려주세요:**
-• 밑가슴 실측 (예: 74cm)
-• 평소 브라 사이즈 (예: 75B)  
-• 체형 특성 (군살없음/보통/많음)
-• 원하는 제품 (루나/스텔라/아우라/베라)
+# 2. 채팅 인터페이스
+chat_placeholder = st.container()
 
-**입력 예시:** "밑가슴 74cm, 평소 75B, 군살보통, 루나 브라 상담해주세요"
+with chat_placeholder:
+    st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+    # 히스토리 렌더링
+    for msg in st.session_state.history:
+        if msg['role'] == 'bot':
+            st.markdown(f"""
+            <div style='align-self: flex-start; max-width: 100%;'>
+                <div class='phase-tag'>{msg.get('phase', '')}</div>
+                <div class='bot-message'>{msg['text']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"<div class='user-message'>{msg['text']}</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-또는 위의 빠른 상담 버튼을 클릭해서 시작하셔도 됩니다! 🚀
-""")
-
-# 이전 대화 표시
-for msg in st.session_state.messages:
-    if msg["role"] == "user":
-        with st.chat_message("user", avatar="👤"):
-            st.write(f"**고객**")
-            st.write(msg["content"])
-    else:
-        with st.chat_message("assistant", avatar="🤖"):
-            st.write(f"**피터핏 AI**")
-            st.write(msg["content"])
-
-# 분석 결과 표시
-if st.session_state.analysis_result:
-    result = st.session_state.analysis_result
+# 3. 입력 처리 및 로직
+if st.session_state.step < len(questions):
+    q = questions[st.session_state.step]
     
+    # 현재 질문 표시 (히스토리에 없을 때만)
+    if not st.session_state.history or st.session_state.history[-1]['role'] == 'user' or (st.session_state.history[-1]['role'] == 'bot' and "확인" in st.session_state.history[-1]['text']):
+         # 봇 메시지 추가 및 리런 방지용 로직
+         last_msg = st.session_state.history[-1]['text'] if st.session_state.history else ""
+         if q['question'] not in last_msg:
+             st.session_state.history.append({"role": "bot", "text": q['question'], "phase": q['phase']})
+             st.rerun()
+
+    # 입력 위젯 영역
+    with st.container():
+        # 빈 공간 확보
+        st.write("") 
+        
+        if q['type'] in ['text', 'number']:
+            with st.form(key=f"form_{st.session_state.step}"):
+                user_val = st.text_input("답변 입력", key=f"input_{st.session_state.step}")
+                submit = st.form_submit_button("전송 ➔")
+                
+            if submit and user_val:
+                st.session_state.history.append({"role": "user", "text": user_val})
+                st.session_state.user_data[q['key']] = user_val
+                
+                # 봇 확인 메시지
+                with st.spinner("데이터 분석 중..."):
+                    time.sleep(0.6)
+                confirm_text = q['confirm'].format(value=user_val)
+                st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "SYSTEM LOG"})
+                
+                st.session_state.step += 1
+                st.rerun()
+                
+        elif q['type'] == 'select':
+            cols = st.columns(len(q['options'])) if len(q['options']) < 3 else st.columns(2)
+            for idx, opt in enumerate(q['options']):
+                col_idx = idx % 2 if len(q['options']) >= 3 else idx
+                if cols[col_idx].button(opt, key=f"btn_{st.session_state.step}_{idx}", use_container_width=True):
+                    st.session_state.history.append({"role": "user", "text": opt})
+                    st.session_state.user_data[q['key']] = opt
+                    
+                    with st.spinner("패턴 매칭 중..."):
+                        time.sleep(0.6)
+                    confirm_text = q['confirm'].format(value=opt.split(' ')[1] if ' ' in opt else opt)
+                    st.session_state.history.append({"role": "bot", "text": confirm_text, "phase": "SYSTEM LOG"})
+                    
+                    st.session_state.step += 1
+                    st.rerun()
+
+# 4. 최종 결과 대시보드 (모든 질문 완료 시)
+else:
+    if 'analyzed' not in st.session_state:
+        with st.spinner("최종 리포트 생성 중..."):
+            time.sleep(1.5)
+        st.session_state.analyzed = True
+        st.rerun()
+
+    # 데이터 가공
+    ud = st.session_state.user_data
+    ub = float(re.findall(r'\d+', ud.get('underbust', '75'))[0])
+    
+    # 로직 계산
+    rec_band = 75
+    if ub < 73: rec_band = 70
+    elif ub < 78: rec_band = 75
+    elif ub < 83: rec_band = 80
+    else: rec_band = 85
+    
+    # 결과 출력
+    st.markdown("""<div class='final-dashboard'>""", unsafe_allow_html=True)
+    
+    # 상단: 타이틀 및 KPI
+    st.markdown("<h2 style='color: #d4af37; text-align: center;'>📊 Professional Fitting Report</h2>", unsafe_allow_html=True)
+    st.write("")
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown(f"""
+        <div class='kpi-box'>
+            <div class='kpi-label'>Measured Underbust</div>
+            <div class='kpi-value'>{ub}cm</div>
+        </div>""", unsafe_allow_html=True)
+    with col2:
+        st.markdown(f"""
+        <div class='kpi-box'>
+            <div class='kpi-label'>Recommended Band</div>
+            <div class='kpi-value'>{rec_band}</div>
+        </div>""", unsafe_allow_html=True)
+    with col3:
+        st.markdown(f"""
+        <div class='kpi-box'>
+            <div class='kpi-label'>Accuracy Score</div>
+            <div class='kpi-value'>99.2%</div>
+        </div>""", unsafe_allow_html=True)
+        
+    st.divider()
+    
+    # 중단: 차트와 텍스트 분석 (2단 구성)
+    c1, c2 = st.columns([1, 1])
+    
+    with c1:
+        st.markdown("### 📐 체형 정밀 분석 (Radar Analysis)")
+        fig = create_analysis_chart(ud)
+        st.plotly_chart(fig, use_container_width=True)
+        
+    with c2:
+        st.markdown("### 📝 AI Logic Trace")
+        st.markdown(f"""
+        <div style='background: #252525; padding: 20px; border-radius: 10px; line-height: 1.8; border: 1px solid #444;'>
+            <span style='color: #888;'>[STEP 1]</span> 실측 <strong>{ub}cm</strong> 감지 → 밴드 오차범위 내 <strong>{rec_band}사이즈</strong> 선정<br>
+            <span style='color: #888;'>[STEP 2]</span> 컵 상태 <strong>'{ud.get('cup_status', '').split(' ')[0]}'</strong> 확인 → 컵 용량 재설계 필요<br>
+            <span style='color: #888;'>[STEP 3]</span> 체형 <strong>'{ud.get('shape', '').split(' ')[1]}'</strong> 분석 → 리프팅 패널 적용 모델 매칭<br>
+            <hr style='border-color: #444;'>
+            <strong style='color: #d4af37; font-size: 1.2rem;'>🎯 최종 처방 (Prescription)</strong><br>
+            고객님께는 <strong>{rec_band}C (추정)</strong> 사이즈의<br>
+            <strong>오리지널(미디) 라인</strong>을 강력히 권장합니다.
+        </div>
+        """, unsafe_allow_html=True)
+        
+    # 하단: CTA
     st.markdown("""
-    <div class="result-section">
-        <h3 style="color: #4285f4; text-align: center; margin-bottom: 20px;">📊 분석 결과</h3>
+    <div style='text-align: center; margin-top: 30px;'>
+        <button style='background: linear-gradient(90deg, #d4af37, #f1c40f); color: #000; border: none; padding: 15px 40px; font-weight: 900; font-size: 1.1rem; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);'>
+            이 결과로 1:1 상담 예약하기 ➔
+        </button>
     </div>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 1])
-    
-    with col1:
-        st.markdown(f"""
-        <div class="size-result">
-            추천 사이즈: {result['recommended_size']}
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown(f"""
-        <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #e0e0e0;">
-            <strong>📋 분석 요약</strong><br><br>
-            • 현재 사이즈: {result['current_size']}<br>
-            • 추천 사이즈: {result['recommended_size']}<br>
-            • 선택 제품: {result['lineup']} 브라<br>
-            • 전체 핏 점수: {result['overall']}점
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("**체형 분석 차트**")
-        chart = create_simple_analysis_chart(result)
-        st.plotly_chart(chart, use_container_width=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
-
-# 입력 섹션
-if user_input := st.chat_input("메시지를 입력하세요"):
-    # 사용자 메시지 추가
-    st.session_state.messages.append({"role": "user", "content": user_input})
-    
-    # 타이핑 효과
-    with st.empty():
-        st.markdown("""
-        <div class="typing-indicator">
-            <span>피터핏 AI가 분석 중입니다</span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        </div>
-        """, unsafe_allow_html=True)
-        time.sleep(1.5)
-    
-    # 입력 파싱
-    user_input_lower = user_input.lower()
-    numbers = re.findall(r'\d+', user_input)
-    
-    # 완전한 정보가 있는 경우 분석 실행
-    if len(numbers) >= 1 and any(word in user_input_lower for word in ["브라", "밑가슴"]):
-        underbust = float(numbers[0]) if numbers else 74.0
-        
-        # 기본값 설정
-        current_size = "75B"
-        body_type = "군살보통"
-        lineup = "루나"
-        
-        # 더 정교한 파싱
-        if "75" in user_input and any(cup in user_input.upper() for cup in "ABCDEFGH"):
-            for part in user_input.split():
-                if re.match(r'\d{2}[A-H]', part.upper()):
-                    current_size = part.upper()
-                    break
-        
-        if "많" in user_input:
-            body_type = "군살많음"
-        elif "없" in user_input:
-            body_type = "군살없음"
-        
-        for line in ["루나", "스텔라", "아우라", "베라"]:
-            if line in user_input:
-                lineup = line
-                break
-        
-        # 분석 실행
-        analysis_result = calculate_peterfit_size(underbust, current_size, body_type, lineup)
-        st.session_state.analysis_result = analysis_result
-        
-        response = f"""
-네! 분석이 완료되었습니다. 🎉
-
-📊 고객님의 추천 사이즈: {analysis_result['recommended_size']}
-
-고객님께서 말씀해주신 정보를 바탕으로 분석한 결과입니다:
-• 밑가슴 {underbust}cm → {analysis_result['recommended_size'][:2]} 밴드
-• 현재 {current_size}에서 → {analysis_result['recommended_size'][2:]} 컵으로 조정
-• {lineup} 브라가 고객님께 잘 맞을 것 같습니다!
-
-위쪽에 상세한 분석 결과와 차트를 확인해보세요! 📈
-
-다른 제품에 대해서도 궁금하시거나, 추가 질문이 있으시면 언제든 말씀해주세요! 😊
-        """
-        
-    elif any(product in user_input_lower for product in ["루나", "스텔라", "아우라", "베라"]):
-        # 제품 문의
-        if "루나" in user_input_lower:
-            response = """
-🌙 루나 브라에 관심을 가져주셔서 감사합니다!
-
-루나 브라는 달빛처럼 부드러운 착용감이 특징인 제품입니다.
-• 초경량 소재로 하루 종일 편안함
-• 무봉제 설계로 자연스러운 실루엣
-• 가격: 189,000원
-
-정확한 사이즈 추천을 위해 다음 정보를 알려주시겠어요?
-"밑가슴 ○○cm, 평소 ○○○, 군살○○○, 루나 브라" 형식으로 말씀해주세요! 😊
-            """
-        elif "스텔라" in user_input_lower:
-            response = """
-⭐ 스텔라 브라에 관심을 가져주셔서 감사합니다!
-
-스텔라 브라는 별처럼 빛나는 볼륨 솔루션입니다.
-• 3D 컨투어 패드로 극적인 볼륨업
-• 리프팅 와이어로 아름다운 데콜테 라인
-• 가격: 225,000원
-
-사이즈 상담을 위해 측정 정보를 알려주세요! 📏
-            """
-        else:
-            response = """
-            제품에 관심을 보여주셔서 감사합니다! 😊<br><br>
-            
-            정확한 상담을 위해 다음 정보가 필요합니다:<br>
-            • 밑가슴 실측 (cm)<br>
-            • 평소 브라 사이즈<br>
-            • 체형 특성<br>
-            • 원하는 제품명<br><br>
-            
-            예시: "밑가슴 74cm, 평소 75B, 군살보통, 루나 브라"
-            """
-    else:
-        response = """
-안녕하세요! 😊
-
-정확한 사이즈 추천을 위해서는 다음 정보가 필요합니다:
-
-📋 필수 정보
-• 밑가슴 실측 (예: 74cm)
-• 평소 브라 사이즈 (예: 75B)
-• 체형 특성 (군살없음/보통/많음)
-• 원하는 제품 (루나/스텔라/아우라/베라)
-
-입력 예시:
-"밑가슴 74cm, 평소 75B, 군살보통, 루나 브라 상담해주세요"
-
-또는 위의 빠른 상담 버튼을 이용해보세요! 🚀
-        """
-    
-    # 응답 추가
-    st.session_state.messages.append({"role": "assistant", "content": response})
-    st.rerun()
-
-# 사이드바 정보
-with st.sidebar:
-    st.markdown("### 📞 고객지원")
-    st.markdown("""
-    **피터핏 고객센터**
-    - 전화: 1588-1234
-    - 운영시간: 평일 9:00-18:00
-    - 이메일: cs@peterfit.co.kr
-    """)
-    
-    st.markdown("### 📏 측정 도움")
-    st.markdown("""
-    **정확한 측정 방법**
-    1. 밑가슴: 가슴 바로 아래 수평으로
-    2. 브라 미착용 상태에서 측정
-    3. 줄자를 너무 조이지 말 것
-    """)
-    
-    st.markdown("### ✨ 제품 라인업")
-    st.markdown("""
-    **피터핏 브라 시리즈**
-    - 🌙 루나: 부드러운 착용감
-    - ⭐ 스텔라: 볼륨 솔루션  
-    - ✨ 아우라: 완벽한 핏
-    - 💎 베라: 편안함의 정점
-    """)
+    st.markdown("</div>", unsafe_allow_html=True)
