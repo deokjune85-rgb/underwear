@@ -75,17 +75,18 @@ st.markdown("""
     
     /* 입력창 스타일 개선 */
     .stTextInput > div > div > input {
-        background-color: #ffffff !important;
-        border: 2px solid #ffeb3b !important;
+        background-color: #ffeb3b !important; /* 카톡 노랑 */
+        border: 2px solid #f9a825 !important;
         border-radius: 25px !important;
         padding: 12px 20px !important;
         font-size: 1rem !important;
-        color: #191919 !important;
+        color: #191919 !important; /* 검은색 글자 */
     }
     
     .stTextInput > div > div > input:focus {
-        border-color: #f9a825 !important;
+        border-color: #f57f17 !important;
         box-shadow: 0 0 0 2px rgba(255, 235, 59, 0.3) !important;
+        background-color: #ffeb3b !important; /* 포커스 시에도 노란색 유지 */
     }
     
     .bot-message {
@@ -158,20 +159,21 @@ st.markdown("""
     }
     
     /* 버튼 커스텀 */
-    .stButton > button {
-        background-color: #ffeb3b; /* 카톡 노랑 */
-        color: #3c4043;
-        border: 1px solid #f9a825;
-        border-radius: 8px;
-        padding: 10px 15px;
-        font-size: 1rem;
-        transition: all 0.3s;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        font-weight: 600;
+    .stButton > button, .stFormSubmitButton > button {
+        background-color: #ffeb3b !important; /* 카톡 노랑 */
+        color: #191919 !important; /* 검은색 글자 */
+        border: 1px solid #f9a825 !important;
+        border-radius: 8px !important;
+        padding: 10px 15px !important;
+        font-size: 1rem !important;
+        transition: all 0.3s !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+        font-weight: 600 !important;
     }
-    .stButton > button:hover {
-        background-color: #fff176;
-        border-color: #f57f17;
+    .stButton > button:hover, .stFormSubmitButton > button:hover {
+        background-color: #fff176 !important;
+        border-color: #f57f17 !important;
+        color: #191919 !important; /* 호버 시에도 검은색 글자 유지 */
     }
     /* 최종 CTA 버튼 */
     .final-cta-button {
@@ -337,6 +339,7 @@ questions = [
 if 'step' not in st.session_state: st.session_state.step = 0
 if 'history' not in st.session_state: st.session_state.history = []
 if 'user_data' not in st.session_state: st.session_state.user_data = {}
+if 'additional_chat' not in st.session_state: st.session_state.additional_chat = False
 
 # 1. 헤더 영역 (뉴스 티커 + 배지)
 current_time = datetime.datetime.now().strftime("%H:%M")
@@ -561,13 +564,32 @@ else:
     """, unsafe_allow_html=True)
 
 
-    # 하단: CTA
-    st.markdown("""
-    <div style='text-align: center; margin-top: 30px;'>
-        <button class='final-cta-button' onclick="window.location.href='https://example.com/consult_booking';">
-            이 결과로 1:1 전문 상담 예약하기 ➔
-        </button>
-    </div>
-    """, unsafe_allow_html=True)
+    # 하단: 추가 상담 채팅 연결
+    st.markdown("### 💬 추가 상담")
+    
+    if st.button("다른 상담이 있으신가요?", key="additional_consultation", use_container_width=True):
+        # 추가 상담을 위한 메시지 추가
+        st.session_state.history.append({"role": "user", "text": "다른 상담이 있으신가요?"})
+        
+        # AI 응답 추가
+        additional_response = """
+네! 언제든지 추가 상담 가능합니다! 😊
+
+다음과 같은 상담을 도와드릴 수 있어요:
+• 다른 제품 라인업 추천 상담
+• 사이즈 재검토 및 피팅 조정
+• 착용법 및 관리 방법 안내
+• 교환/반품 정책 문의
+• 기타 궁금한 점
+
+어떤 것이 궁금하신지 말씀해주세요!
+        """
+        
+        st.session_state.history.append({"role": "bot", "text": additional_response.strip(), "phase": "추가 상담"})
+        
+        # 상담 모드를 다시 활성화
+        st.session_state.step = len(questions)  # 질문은 끝났지만 채팅은 계속
+        st.session_state.additional_chat = True
+        st.rerun()
     
     st.markdown("</div>", unsafe_allow_html=True)
