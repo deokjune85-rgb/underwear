@@ -550,19 +550,19 @@ if user_input := st.chat_input("측정 정보를 입력하세요 (예: 밑가슴
             st.markdown('<div class="result-container">', unsafe_allow_html=True)
             
             # 왼쪽: 엔지니어링 섹션
-            st.markdown("""
+            st.markdown(f"""
             <div class="engineering-section">
                 <div class="section-title">
                     🔧 AI 정밀 산출 결과 (Accuracy 99.9%)
                 </div>
                 <div class="data-result">
-                    RESULT: %s
+                    RESULT: {size}
                 </div>
-                <p style="text-align: center; color: #6c757d; font-size: 0.9rem; margin: 10px 0;">
+                <p style="text-align: center; color: #b0bec5; font-size: 0.9rem; margin: 10px 0;">
                     ▲ 이건 변하지 않는 <strong>팩트</strong>입니다 ▲
                 </p>
             </div>
-            """ % size, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
             # 오른쪽: 커뮤니케이션 섹션  
             st.markdown(f"""
@@ -576,7 +576,7 @@ if user_input := st.chat_input("측정 정보를 입력하세요 (예: 밑가슴
                     <p>{customer_script['confidence']}</p>
                     <p>{customer_script['next_step']}</p>
                 </div>
-                <p style="text-align: center; color: #fd7e14; font-size: 0.9rem; margin: 10px 0;">
+                <p style="text-align: center; color: #b0bec5; font-size: 0.9rem; margin: 10px 0;">
                     ▲ 팩트를 기반으로 AI가 <strong>말만 예쁘게 포장</strong>했습니다 ▲
                 </p>
             </div>
