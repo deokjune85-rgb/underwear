@@ -91,30 +91,30 @@ st.markdown("""
     
     .bot-message {
         background-color: #ffffff; /* 흰색 말풍선 */
-        border: 1px solid #e0e0e0;
+        border: 2px solid #191919; /* 검은색 실선 테두리 */
         border-radius: 15px 15px 15px 0; /* 카톡 좌측 말풍선 */
         color: #191919; /* 진한 검정 */
         padding: 15px;
         font-size: 1rem;
         line-height: 1.5;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         animation: fadeIn 0.5s ease-out;
         max-width: fit-content; /* 글자에 맞게 크기 조정 */
         width: auto;
         margin-bottom: 10px;
         word-wrap: break-word;
         display: inline-block;
+        align-self: flex-start; /* 왼쪽 정렬 */
     }
     
     .user-message {
         background: #ffeb3b; /* 카톡 사용자 말풍선 */
         color: #191919; /* 진한 검정 */
+        border: 2px solid #191919; /* 검은색 실선 테두리 */
         padding: 15px 20px;
         border-radius: 15px 15px 0 15px; /* 카톡 우측 말풍선 */
-        align-self: flex-end;
+        align-self: flex-end; /* 오른쪽 정렬 */
         margin-left: auto;
         font-weight: 600;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         animation: fadeIn 0.5s ease-out;
         max-width: fit-content; /* 글자에 맞게 크기 조정 */
         width: auto;
@@ -418,13 +418,19 @@ with chat_placeholder:
             # 마지막 봇 메시지에 타이핑 효과 적용
             typing_class = "typing-animation" if idx == len(st.session_state.history) - 1 and msg['role'] == 'bot' else ""
             st.markdown(f"""
-            <div style='align-self: flex-start; max-width: 100%;'>
-                <div class='phase-tag'>{msg.get('phase', '')}</div>
-                <div class='bot-message {typing_class}'>{msg['text']}</div>
+            <div style='display: flex; justify-content: flex-start; width: 100%;'>
+                <div style='max-width: 70%;'>
+                    <div class='phase-tag'>{msg.get('phase', '')}</div>
+                    <div class='bot-message {typing_class}'>{msg['text']}</div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
         else:
-            st.markdown(f"<div class='user-message'>{msg['text']}</div>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style='display: flex; justify-content: flex-end; width: 100%;'>
+                <div class='user-message'>{msg['text']}</div>
+            </div>
+            """, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
     
     # 자동 스크롤 실행
